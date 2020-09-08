@@ -9,7 +9,7 @@ module.exports = function(app) {
 
   // link to css file
   app.get("/styles", function(req, res) {
-    res.sendFile(path.join(__dirname, "../public/css/styles.css"));
+    res.sendFile(path.join(__dirname, "../public/assets/css/styles.css"));
   });
 
   // if no matching route is found default to home page
