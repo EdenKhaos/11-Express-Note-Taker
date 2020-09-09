@@ -8,7 +8,7 @@ Create an application that can be used to write, save, and delete notes. This ap
 
 ## Demo 
 
-![Home](https://github.com/EdenKhaos/11-Express-Note-Taker/tree/master/demo)
+![Demo](https://github.com/EdenKhaos/11-Express-Note-Taker/blob/master/demo/notetaker.gif)
 
 ## User Story
 ```
