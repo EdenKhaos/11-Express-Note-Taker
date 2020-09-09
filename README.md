@@ -4,11 +4,11 @@
 
 Create an application that can be used to write, save, and delete notes. This application will use an express backend and save and retrieve note data from a JSON file.
 
-- [Link to Live Site]()
+- [Link to Live Site](https://expressnotetaker-11.herokuapp.com/)
 
 ## Demo 
 
-
+![Home](https://github.com/EdenKhaos/11-Express-Note-Taker/tree/master/demo)
 
 ## User Story
 ```
