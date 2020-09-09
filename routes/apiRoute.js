@@ -1,68 +1,62 @@
-var path = require("path");
+// Linking the noteContents in db to this routes.
+var noteContents = require("../db/noteContents")
 
-module.exports = function(app, fs){
+//Create promise-based versions of functions using node style callbacks
+const fs = require("fs");
+const util = require("util");
+const writeFileAsync = util.promisify(fs.writeFile);
 
-const db = require('../db/db.json');
+// Create a route
+module.exports = function(app) {
 
-let databaseFile = path.join(__dirname, '../db/db.json');
-
-//API/Notes
-app.get('/api/notes', function(req, res) {
-    res.json(db);
-});
-
-// posting and creating user notes
-app.post('/api/notes', function(req, res) {
-    let newNote = req.body;  
-    //establishing a user ID to make saving and deleting easier  
-    let id = 1;
-
-    for (let i = 0; i < db.length; i++) {
-        let note = db[i];
-
-        if (note.id > id) {
-            id = note.id;
-        }
-    }
-
-    //assigning the new note the newest ID
-    newNote.id = id + 1;
-    //pushing the new note into the DB. This will automatically show in the browser as well.
-    db.push(newNote)
-    //Letting user know in the console that the note saved properly
-    fs.writeFile(databaseFile, JSON.stringify(db), function(err){
-        if(err) {
-            return console.log(err);
-        }
-        console.log("Note Saved");
+    //Display all notes
+    app.get("/api/notes", function(req, res) {
+        res.json(noteContents);
     });
-    res.json(newNote);
 
-});
+    //Create new posts
+    app.post("/api/notes", function(req, res) {
+        
+        let newNote = req.body;
 
-//deleting the chosen note based off ID
-app.delete('/api/notes/:id', function(req, res) {
-    let databaseFile = path.join(__dirname, '../db/db.json')
-    //going through the db(database) to find the correct ID
-    for(let i = 0; i < db.length; i++) {
+        // check to find last id in our notes json file, and assign the note to one greater than that id
+        let lastId = noteContents[noteContents.length - 1]["id"];
+        let newId = lastId + 1;
+        newNote["id"] = newId;
+        
+        console.log("Req.body:", req.body);
+        noteContents.push(newNote);
 
-        if(db[i].id == req.params.id) {
-           
-            //cutting out the note using the splice method
-            db.splice(i, 1);            
-            break;
-        }
-    }
-    //writing int the console for the user to know the note deleted properly
-    fs.writeFile(databaseFile, JSON.stringify(db), function(err) {
+        // write to the noteContents.json file as well
+        writeFileAsync("./db/noteContents.json", JSON.stringify(noteContents)).then(function() {
+            console.log("noteContents.json has been updated!");
+        });
 
-        if(err) {
-            return console.log(err);
-        } else {
-            console.log("Note deleted");
-        }
+        res.json(newNote);
     });
-    res.json(db);
-});
 
-}
+    // Delete a post
+    app.delete("/api/notes/:id", function(req, res) {
+
+        console.log("Req.params:", req.params);
+        let chosenId = parseInt(req.params.id);
+        console.log(chosenId);
+
+
+        for (let i = 0; i < noteContents.length; i++) {
+            if (chosenId === noteContents[i].id) {
+                // delete noteContents[i];
+                noteContents.splice(i,1);
+                
+                let noteJSON = JSON.stringify(noteContents, null, 2);
+                //using placeholders from .json file
+                writeFileAsync("./db/noteContents.json", noteJSON).then(function() {
+                console.log ("Chosen note has been deleted!");
+            });                 
+            }
+        }
+        res.json(noteContents);
+        
+    });
+        
+};
